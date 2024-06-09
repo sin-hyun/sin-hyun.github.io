@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새 글 작성</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #new-post {
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin: 10px 0 5px;
+        }
+        input, textarea, select {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+
+            margin-top: -20px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .category-input-group {
+            display: flex;
+            align-items: center;
+        }
+        .category-input-group input {
+            flex: 1;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="new-post">
+    <h1>새 글 작성</h1>
+    <form action="/post" method="post">
+        <label for="category">카테고리</label>
+        <select id="category" name="category" required>
+            <option th:each="category : ${categories}" th:value="${category.name}" th:text="${category.name}">카테고리</option>
+        </select>
+        <div class="category-input-group">
+            <input type="text" id="new-category" placeholder="새 카테고리 추가">
+            <button type="button" onclick="addCategory()">추가</button>
+        </div>
+        <label for="title">제목</label>
+        <input type="text" id="title" name="title" required>
+        <label for="content">내용</label>
+        <textarea id="content" name="content" rows="10" required></textarea>
+        <button type="submit">저장</button>
+    </form>
+</div>
+
+<script>
+    function addCategory() {
+        const newCategoryInput = document.getElementById('new-category');
+        const categorySelect = document.getElementById('category');
+        const newCategory = newCategoryInput.value.trim();
+
+        if (newCategory) {
+            const option = document.createElement('option');
+            option.value = newCategory;
+            option.text = newCategory;
+            option.selected = true;
+            categorySelect.appendChild(option);
+            newCategoryInput.value = '';
+        }
+    }
+</script>
+</body>
+</html>

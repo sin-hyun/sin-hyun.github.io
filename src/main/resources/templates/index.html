@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메모장</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #board {
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 90vh; /* 전체 높이를 제한하여 스크롤이 가능하도록 설정 */
+        }
+        header, footer {
+            text-align: center;
+            margin: 10px 0;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            overflow-y: auto; /* 스크롤바 추가 */
+            flex-grow: 1; /* 남은 공간을 모두 사용하도록 설정 */
+        }
+        li {
+            margin-bottom: 10px; /* 아래쪽 마진을 줄임 */
+            background: #f9f9f9;
+            padding: 10px; /* 패딩을 줄임 */
+
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px; /* 글씨 크기를 줄임 */
+        }
+        a {
+            text-decoration: none;
+            color: black; /* 제목의 색상을 검은색으로 변경 */
+            font-size: 14px; /* 글씨 크기를 줄임 */
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 5px 10px; /* 버튼 패딩을 줄임 */
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px; /* 버튼 글씨 크기를 줄임 */
+        }
+        #newWrite {
+            padding: 10px 15px; /* 버튼 패딩을 줄임 */
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="board">
+    <header>
+        <h1>메모장</h1>
+    </header>
+    <ul>
+        <li th:each = "post : ${posts}">
+            <div>
+                <a th:href = "@{/post/edit/{id}(id=${post.id})}" th:text = "${'[' + post.category + '] ' + post.title}">[카테고리] 제목</a>
+            </div>
+            <div class="btn-group">
+                <button th:onclick = "|confirmDelete(${post.id})|">삭제</button>
+            </div>
+        </li>
+    </ul>
+    <footer>
+        <button onclick = "location.href='/new'" id = "newWrite">새 글 작성</button>
+    </footer>
+</div>
+
+<script>
+    function confirmDelete(postId) {
+        if (confirm('삭제하시겠습니까?')) {
+            location.href = '/post/delete/' + postId;
+        }
+    }
+</script>
+</body>
+</html>
