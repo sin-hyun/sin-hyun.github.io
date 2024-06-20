@@ -28,4 +28,8 @@ public class PostService {
     public void deleteById(Long id) {
         postRepository.deleteById(id);
     }
+
+    public List<Post> findByCategoryId(Long categoryId) {
+        return postRepository.findByCategoryId(categoryId);
+    }
 }

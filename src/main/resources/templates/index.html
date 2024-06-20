@@ -11,9 +11,37 @@
             padding: 0;
             background-color: #f4f4f4;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             height: 100vh;
+        }
+        nav {
+            width: 100%;
+            background-color: #007BFF;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+        nav ul li {
+            margin: 0 10px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            background-color: #0056b3;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+            background-color: #004494;
         }
         #board {
             width: 80%;
@@ -24,6 +52,7 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+            margin-top: 20px;
             height: 90vh; /* 전체 높이를 제한하여 스크롤이 가능하도록 설정 */
         }
         header, footer {
@@ -40,12 +69,26 @@
             margin-bottom: 10px; /* 아래쪽 마진을 줄임 */
             background: #f9f9f9;
             padding: 10px; /* 패딩을 줄임 */
-
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 16px; /* 글씨 크기를 줄임 */
+        }
+        .category {
+            display: flex;
+            align-items: center;
+        }
+        .category-color {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+        .category-name {
+            margin-right: 5px;
+            font-weight: bold;
         }
         a {
             text-decoration: none;
@@ -75,31 +118,60 @@
     </style>
 </head>
 <body>
-<div id="board">
-    <header>
-        <h1>메모장</h1>
-    </header>
-    <ul>
-        <li th:each = "post : ${posts}">
-            <div>
-                <a th:href = "@{/post/edit/{id}(id=${post.id})}" th:text = "${'[' + post.category + '] ' + post.title}">[카테고리] 제목</a>
-            </div>
-            <div class="btn-group">
-                <button th:onclick = "|confirmDelete(${post.id})|">삭제</button>
-            </div>
-        </li>
-    </ul>
-    <footer>
-        <button onclick = "location.href='/new'" id = "newWrite">새 글 작성</button>
-    </footer>
-</div>
+    <nav>
+        <ul>
+            <li><a href="/">메인</a></li>
+            <li th:each="category : ${categories}">
+                <a th:href="@{/category/{id}(id=${category.id})}">
+                    <span class="category-color" th:style="'background-color: ' + ${category.color}"></span>
+                    <span th:text="${category.name}">카테고리</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div id="board">
+        <header>
+            <h1>메모장</h1>
+        </header>
+        <ul>
+            <li th:each="post : ${posts}" th:data-post-id="${post.id}">
+                <div class="category">
+                    <span class="category-color" th:style="'background-color: ' + ${post.category.color}"></span>
+                    <span class="category-name" th:text="${post.category.name}"></span>
+                    <a th:href="@{/post/edit/{id}(id=${post.id})}" th:text="${post.title}"></a>
+                </div>
+                <div class="btn-group">
+                    <input type="checkbox" class="post-checkbox" th:checked="false">
+                    <button th:onclick="|confirmDelete(${post.id})|">삭제</button>
+                </div>
+            </li>
+        </ul>
+        <footer>
+            <button onclick="location.href='/new'" id="newWrite">새 글 작성</button>
+        </footer>
+    </div>
 
-<script>
-    function confirmDelete(postId) {
-        if (confirm('삭제하시겠습니까?')) {
-            location.href = '/post/delete/' + postId;
+    <script>
+        function confirmDelete(postId) {
+            if (confirm('삭제하시겠습니까?')) {
+                location.href = '/post/delete/' + postId;
+            }
         }
-    }
-</script>
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const checkboxes = document.querySelectorAll('.post-checkbox');
+            checkboxes.forEach(checkbox => {
+                const postId = checkbox.closest('li').dataset.postId;
+                const checkedState = localStorage.getItem(`post-${postId}-checked`);
+                if (checkedState === 'true') {
+                    checkbox.checked = true;
+                }
+
+                checkbox.addEventListener('change', () => {
+                    localStorage.setItem(`post-${postId}-checked`, checkbox.checked);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

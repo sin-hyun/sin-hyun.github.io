@@ -11,7 +11,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String color; // 색상 필드 추가
+    private String color;
 
     // Getters and Setters
     public Long getId() {

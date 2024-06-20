@@ -1,9 +1,6 @@
 package com.example.board.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Post {
@@ -12,7 +9,10 @@ public class Post {
     private Long id;
     private String title;
     private String content;
-    private String category; // 카테고리 필드
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     // Getters and Setters
     public Long getId() {
@@ -39,11 +39,11 @@ public class Post {
         this.content = content;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 }

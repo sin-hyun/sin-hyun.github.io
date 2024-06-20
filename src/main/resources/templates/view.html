@@ -53,18 +53,39 @@
             display: block;
             margin-top: 10px;
         }
+        .category-input-group {
+            display: flex;
+            align-items: center;
+        }
+        .category-input-group input {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .color-picker {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
 <div id="view-post">
     <h1>게시글 수정</h1>
-    <form action="/post/update" method="post">
+    <form action="/post/update" method="post" onsubmit="return addCategoryToForm()">
         <input type="hidden" id="id" name="id" th:value="${post.id}">
         <label for="category">카테고리</label>
-        <select id="category" name="category" required>
-            <option value="확률과통계" th:selected="${post.category == '확률과통계'}">확률과통계</option>
-            <option value="선형대수학" th:selected="${post.category == '선형대수학'}">선형대수학</option>
+        <select id="category" name="categoryId" required>
+            <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}" th:selected="${category.id == post.category.id}">카테고리</option>
         </select>
+        <div class="category-input-group">
+            <input type="text" id="new-category" placeholder="새 카테고리 추가">
+            <input type="color" id="new-category-color" class="color-picker" value="#ffffff">
+            <button type="button" onclick="addCategory()">추가</button>
+        </div>
+        <input type="hidden" id="new-category-name" name="newCategoryName">
+        <input type="hidden" id="new-category-color-hidden" name="newCategoryColor">
         <label for="title">제목</label>
         <input type="text" id="title" name="title" th:value="${post.title}" required>
         <label for="content">내용</label>
@@ -73,5 +94,36 @@
     </form>
     <a href="/">목록으로 돌아가기</a>
 </div>
+
+<script>
+    function addCategory() {
+        const newCategoryInput = document.getElementById('new-category');
+        const newCategoryColorInput = document.getElementById('new-category-color');
+        const categorySelect = document.getElementById('category');
+        const newCategory = newCategoryInput.value.trim();
+        const newCategoryColor = newCategoryColorInput.value;
+
+        if (newCategory) {
+            const option = document.createElement('option');
+            option.value = 'new_' + newCategory; // 새로운 카테고리임을 표시하기 위해 접두사 추가
+            option.text = newCategory;
+            option.setAttribute('data-color', newCategoryColor); // 색상 속성 추가
+            option.selected = true;
+            categorySelect.appendChild(option);
+            newCategoryInput.value = '';
+            newCategoryColorInput.value = '#ffffff';
+        }
+    }
+
+    function addCategoryToForm() {
+        const selectedOption = document.querySelector('#category option:checked');
+        if (selectedOption && selectedOption.value.startsWith('new_')) {
+            document.getElementById('new-category-name').value = selectedOption.text;
+            document.getElementById('new-category-color-hidden').value = selectedOption.getAttribute('data-color');
+            document.getElementById('category').name = 'categoryIdNew'; // name 속성 변경
+        }
+        return true;
+    }
+</script>
 </body>
 </html>

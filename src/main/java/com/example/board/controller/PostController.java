@@ -21,6 +21,7 @@ public class PostController {
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("posts", postService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "index";
     }
 
@@ -37,8 +38,12 @@ public class PostController {
     }
 
     @PostMapping("/post/update")
-    public String update(@ModelAttribute Post post) {
-        postService.save(post);
+    public String update(@ModelAttribute Post post, @RequestParam Long categoryId) {
+        Category category = categoryService.findById(categoryId);
+        if (category != null) {
+            post.setCategory(category);
+            postService.save(post);
+        }
         return "redirect:/";
     }
 
@@ -50,14 +55,18 @@ public class PostController {
     }
 
     @PostMapping("/post")
-    public String create(@ModelAttribute Post post, @RequestParam String category) {
-        // 새로운 카테고리가 입력되었는지 확인
-        if (!categoryService.findAll().stream().anyMatch(c -> c.getName().equals(category))) {
+    public String create(@ModelAttribute Post post, @RequestParam(required = false) Long categoryId, @RequestParam(required = false) String categoryIdNew, @RequestParam(required = false) String newCategoryName, @RequestParam(required = false) String newCategoryColor) {
+        Category category = null;
+        if (categoryId != null) {
+            category = categoryService.findById(categoryId);
+        } else if (categoryIdNew != null && !categoryIdNew.isEmpty()) {
             Category newCategory = new Category();
-            newCategory.setName(category);
+            newCategory.setName(newCategoryName);
+            newCategory.setColor(newCategoryColor);
             categoryService.save(newCategory);
+            category = newCategory;
         }
-        post.setCategory(category); // 필드 이름 변경
+        post.setCategory(category);
         postService.save(post);
         return "redirect:/";
     }
@@ -66,5 +75,19 @@ public class PostController {
     public String delete(@PathVariable("id") Long id) {
         postService.deleteById(id);
         return "redirect:/";
+    }
+
+    @GetMapping("/category/{id}")
+    public String viewCategory(@PathVariable("id") Long id, Model model) {
+        Category category = categoryService.findById(id);
+        if (category != null) {
+            model.addAttribute("posts", postService.findByCategoryId(id));
+            model.addAttribute("categories", categoryService.findAll());
+            model.addAttribute("currentCategory", category);
+        } else {
+            model.addAttribute("posts", postService.findAll());
+            model.addAttribute("categories", categoryService.findAll());
+        }
+        return "index";
     }
 }
